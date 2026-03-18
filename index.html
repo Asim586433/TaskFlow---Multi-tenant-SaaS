@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Multi-tenant SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .transition-all { transition: all 0.3s ease; }
+        .sidebar { transition: transform 0.3s ease; }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- App Container -->
+<div id="app" class="min-h-screen">
+    <!-- Auth Pages -->
+    <div id="auth-pages" class="hidden">
+        <!-- Login Page -->
+        <div id="login-page" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">TaskFlow</h1>
+                    <p class="text-gray-600 mt-2">Sign in to your workspace</p>
+                </div>
+                
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="login-email" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="you@example.com">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="login-password" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="••••••••">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Workspace (optional)</label>
+                        <input type="text" id="login-workspace"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="your-workspace">
+                    </div>
+                    
+                    <button type="submit" 
+                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        Sign In
+                    </button>
+                </form>
+                
+                <p class="text-center mt-6 text-gray-600">
+                    Don't have an account? 
+                    <button onclick="showRegister()" class="text-blue-600 font-semibold hover:underline">Sign up</button>
+                </p>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="register-page" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
+                    <p class="text-gray-600 mt-2">Start your free trial</p>
+                </div>
+                
+                <form id="register-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" id="register-fullname"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="John Doe">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="register-email" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="you@example.com">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        <input type="text" id="register-username" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="johndoe">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="register-password" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="••••••••">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="register-confirm" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="••••••••">
+                    </div>
+                    
+                    <button type="submit" 
+                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        Create Account
+                    </button>
+                </form>
+                
+                <p class="text-center mt-6 text-gray-600">
+                    Already have an account? 
+                    <button onclick="showLogin()" class="text-blue-600 font-semibold hover:underline">Sign in</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Pages (Authenticated) -->
+    <div id="app-pages" class="hidden">
+        <!-- Top Navigation -->
+        <nav class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-bold text-gray-900">TaskFlow</h1>
+                        
+                        <!-- Workspace Switcher -->
+                        <div class="ml-10 relative" id="workspace-switcher">
+                            <button onclick="toggleWorkspaceDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                                <span id="current-workspace">Demo Workspace</span>
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linecap="round" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            
+                            <div id="workspace-dropdown" class="hidden absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                <div class="py-1">
+                                    <button onclick="switchWorkspace('demo')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Demo Workspace</button>
+                                    <button onclick="switchWorkspace('acme')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Acme Inc</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-600" id="user-name">Admin User</span>
+                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linecap="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Sidebar Navigation -->
+        <div class="flex">
+            <aside class="w-64 bg-white shadow-sm min-h-[calc(100vh-4rem)]">
+                <nav class="p-4 space-y-1">
+                    <button onclick="showPage('dashboard')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linecap="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        <span>Dashboard</span>
+                    </button>
+                    
+                    <button onclick="showPage('settings')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linecap="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </button>
+                    
+                    <button onclick="showPage('billing')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linecap="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        <span>Billing</span>
+                    </button>
+                    
+                    <button onclick="showPage('admin')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linecap="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <span>Admin</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-8">
+                <!-- Dashboard Page -->
+                <div id="dashboard-page" class="page">
+                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Dashboard</h1>
+                    
+                    <!-- Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 rounded-lg p-3">
+                                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linecap="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-600">Team Members</p>
+                                    <p class="text-2xl font-semibold text-gray-900" id="member-count">8</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="bg-green-100 rounded-lg p-3">
+                                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linecap="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-600">Active Projects</p>
+                                    <p class="text-2xl font-semibold text-gray-900">12</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="bg-purple-100 rounded-lg p-3">
+                                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linecap="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-600">Tasks Completed</p>
+                                    <p class="text-2xl font-semibold text-gray-900">156</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Team Members</h2>
+                            <div class="space-y-4" id="team-members-list">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <span class="text-blue-600 font-medium">AU</span>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Admin User</p>
+                                            <p class="text-xs text-gray-500">admin@demo.com</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">Admin</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                            <span class="text-green-600 font-medium">MU</span>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Member User</p>
+                                            <p class="text-xs text-gray-500">member@demo.com</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">Member</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                                            <span class="text-yellow-600 font-medium">JD</span>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">John Doe</p>
+                                            <p class="text-xs text-gray-500">john@demo.com</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">Member</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Tasks</h2>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Update dashboard UI</p>
+                                        <p class="text-xs text-gray-500">Due in 2 days</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">In Progress</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Fix login bug</p>
+                                        <p class="text-xs text-gray-500">Due today</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">Urgent</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">API documentation</p>
+                                        <p class="text-xs text-gray-500">Due next week</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settings-page" class="page hidden">
+                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Settings</h1>
+                    
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="border-b">
+                            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                                <button onclick="showSettingsTab('profile')" class="settings-tab py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium text-sm" id="tab-profile">Profile</button>
+                                <button onclick="showSettingsTab('workspace')" class="settings-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" id="tab-workspace">Workspace</button>
+                                <button onclick="showSettingsTab('security')" class="settings-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" id="tab-security">Security</button>
+                            </nav>
+                        </div>
+                        
+                        <!-- Profile Settings -->
+                        <div id="settings-profile" class="p-6">
+                            <form class="space-y-6 max-w-2xl">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <input type="text" value="Admin User" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" value="admin@demo.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                                    <input type="text" value="admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Save Changes</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Workspace Settings -->
+                        <div id="settings-workspace" class="p-6 hidden">
+                            <form class="space-y-6 max-w-2xl">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Workspace Name</label>
+                                    <input type="text" value="Demo Workspace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Subdomain</label>
+                                    <div class="flex">
+                                        <input type="text" value="demo" disabled class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-l-lg">
+                                        <span class="inline-flex items-center px-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-500">.taskflow.app</span>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Update Workspace</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Security Settings -->
+                        <div id="settings-security" class="p-6 hidden">
+                            <form class="space-y-6 max-w-2xl">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Update Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Page -->
+                <div id="billing-page" class="page hidden">
+                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Billing & Subscription</h1>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 space-y-8">
+                            <!-- Current Plan -->
+                            <div class="bg-white rounded-lg shadow p-6">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Current Plan</h2>
+                                
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Plan</p>
+                                        <p class="text-xl font-semibold text-gray-900">Pro Plan</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Active</span>
+                                </div>
+                                
+                                <div class="border-t pt-4">
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-600">Current period</span>
+                                        <span class="text-gray-900">Mar 1, 2024 - Mar 31, 2024</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <button class="text-red-600 hover:text-red-700 text-sm font-medium">Cancel subscription</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Payment Method -->
+                            <div class="bg-white rounded-lg shadow p-6">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment Method</h2>
+                                
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M22 4H2v16h20V4zm-2 14H4V8h16v10zM6 12h12v2H6v-2z"/>
+                                        </svg>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Visa ending in 4242</p>
+                                            <p class="text-xs text-gray-500">Expires 12/25</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-blue-600 text-sm font-medium hover:text-blue-700">Update</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Invoices -->
+                            <div class="bg-white rounded-lg shadow p-6">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Invoices</h2>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between py-3 border-b">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Invoice #INV-001</p>
+                                            <p class="text-xs text-gray-500">Mar 1, 2024</p>
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <span class="text-sm font-medium">$29.00</span>
+                                            <button class="text-blue-600 text-sm hover:underline">Download</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between py-3 border-b">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Invoice #INV-002</p>
+                                            <p class="text-xs text-gray-500">Feb 1, 2024</p>
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <span class="text-sm font-medium">$29.00</span>
+                                            <button class="text-blue-600 text-sm hover:underline">Download</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between py-3">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Invoice #INV-003</p>
+                                            <p class="text-xs text-gray-500">Jan 1, 2024</p>
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <span class="text-sm font-medium">$29.00</span>
+                                            <button class="text-blue-600 text-sm hover:underline">Download</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Plan Comparison -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-white rounded-lg shadow p-6">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Available Plans</h2>
+                                
+                                <div class="space-y-4">
+                                    <div class="border rounded-lg p-4">
+                                        <h3 class="font-medium">Free</h3>
+                                        <p class="text-2xl font-bold mt-2">$0</p>
+                                        <p class="text-sm text-gray-500">per month</p>
+                                        <ul class="mt-4 space-y-2 text-sm">
+                                            <li class="flex items-center">
+                                                <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                5 team members
+                                            </li>
+                                            <li class="flex items-center">
+                                                <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                10 projects
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="border-2 border-blue-500 rounded-lg p-4 bg-blue-50">
+                                        <h3 class="font-medium text-blue-900">Pro</h3>
+                                        <p class="text-2xl font-bold text-blue-900 mt-2">$29</p>
+                                        <p class="text-sm text-blue-700">per month</p>
+                                        <ul class="mt-4 space-y-2 text-sm text-blue-800">
+                                            <li class="flex items-center">
+                                                <svg class="h-4 w-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Unlimited members
+                                            </li>
+                                            <li class="flex items-center">
+                                                <svg class="h-4 w-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Unlimited projects
+                                            </li>
+                                            <li class="flex items-center">
+                                                <svg class="h-4 w-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Priority support
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Page -->
+                <div id="admin-page" class="page hidden">
+                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Admin Panel</h1>
+                    
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-lg font-semibold text-gray-900">Team Members</h2>
+                                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                    Invite Member
+                                </button>
+                            </div>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                        <span class="text-blue-600 font-medium">AU</span>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">Admin User</div>
+                                                        <div class="text-sm text-gray-500">admin@demo.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <select class="text-sm border-gray-300 rounded-md">
+                                                    <option value="admin" selected>Admin</option>
+                                                    <option value="member">Member</option>
+                                                </select>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Active</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <button class="text-red-600 hover:text-red-900">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                        <span class="text-green-600 font-medium">MU</span>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">Member User</div>
+                                                        <div class="text-sm text-gray-500">member@demo.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <select class="text-sm border-gray-300 rounded-md">
+                                                    <option value="admin">Admin</option>
+                                                    <option value="member" selected>Member</option>
+                                                </select>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Active</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <button class="text-red-600 hover:text-red-900">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                                                        <span class="text-yellow-600 font-medium">JD</span>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">John Doe</div>
+                                                        <div class="text-sm text-gray-500">john@demo.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <select class="text-sm border-gray-300 rounded-md">
+                                                    <option value="admin">Admin</option>
+                                                    <option value="member" selected>Member</option>
+                                                </select>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">Pending</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <button class="text-red-600 hover:text-red-900">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Roles & Permissions -->
+                    <div class="mt-8 bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Roles & Permissions</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-medium text-gray-900 mb-2">Admin</h3>
+                                <ul class="space-y-2 text-sm text-gray-600">
+                                    <li class="flex items-center">
+                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Manage workspace settings
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Manage team members
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Manage billing
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Access all projects
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-medium text-gray-900 mb-2">Member</h3>
+                                <ul class="space-y-2 text-sm text-gray-600">
+                                    <li class="flex items-center">
+                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Create and edit tasks
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        View team projects
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Comment on tasks
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Update profile
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full"></div>
+
+<script>
+    // State management
+    let currentUser = null;
+    let currentWorkspace = 'Demo Workspace';
+    let isAuthenticated = false;
+
+    // Initialize app
+    window.onload = function() {
+        showLogin();
+        
+        // Add form submit handlers
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('register-form').addEventListener('submit', handleRegister);
+    };
+
+    // Authentication functions
+    function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        // Simulate login
+        if (email && password) {
+            currentUser = {
+                name: 'Admin User',
+                email: email,
+                role: 'admin'
+            };
+            isAuthenticated = true;
+            showToast('Login successful!');
+            showApp();
+            showPage('dashboard');
+        } else {
+            showToast('Please fill in all fields', 'error');
+        }
+    }
+
+    function handleRegister(e) {
+        e.preventDefault();
+        const fullname = document.getElementById('register-fullname').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const confirm = document.getElementById('register-confirm').value;
+        
+        if (password !== confirm) {
+            showToast('Passwords do not match', 'error');
+            return;
+        }
+        
+        // Simulate registration
+        if (fullname && email && password) {
+            showToast('Registration successful! Please login.');
+            showLogin();
+        } else {
+            showToast('Please fill in all fields', 'error');
+        }
+    }
+
+    function logout() {
+        isAuthenticated = false;
+        currentUser = null;
+        showToast('Logged out successfully');
+        showLogin();
+    }
+
+    // Page navigation
+    function showLogin() {
+        document.getElementById('auth-pages').classList.remove('hidden');
+        document.getElementById('app-pages').classList.add('hidden');
+        document.getElementById('login-page').classList.remove('hidden');
+        document.getElementById('register-page').classList.add('hidden');
+    }
+
+    function showRegister() {
+        document.getElementById('auth-pages').classList.remove('hidden');
+        document.getElementById('app-pages').classList.add('hidden');
+        document.getElementById('login-page').classList.add('hidden');
+        document.getElementById('register-page').classList.remove('hidden');
+    }
+
+    function showApp() {
+        document.getElementById('auth-pages').classList.add('hidden');
+        document.getElementById('app-pages').classList.remove('hidden');
+        document.getElementById('user-name').textContent = currentUser?.name || 'User';
+    }
+
+    function showPage(page) {
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+        
+        // Show selected page
+        document.getElementById(`${page}-page`).classList.remove('hidden');
+        
+        // Update sidebar active state
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.classList.remove('bg-blue-50', 'text-blue-600');
+        });
+        event.currentTarget.classList.add('bg-blue-50', 'text-blue-600');
+    }
+
+    // Settings tabs
+    function showSettingsTab(tab) {
+        document.getElementById('settings-profile').classList.add('hidden');
+        document.getElementById('settings-workspace').classList.add('hidden');
+        document.getElementById('settings-security').classList.add('hidden');
+        
+        document.getElementById(`settings-${tab}`).classList.remove('hidden');
+        
+        // Update tab styling
+        document.querySelectorAll('.settings-tab').forEach(t => {
+            t.classList.remove('border-blue-500', 'text-blue-600');
+            t.classList.add('border-transparent', 'text-gray-500');
+        });
+        document.getElementById(`tab-${tab}`).classList.add('border-blue-500', 'text-blue-600');
+    }
+
+    // Workspace switcher
+    function toggleWorkspaceDropdown() {
+        document.getElementById('workspace-dropdown').classList.toggle('hidden');
+    }
+
+    function switchWorkspace(workspace) {
+        const names = {
+            'demo': 'Demo Workspace',
+            'acme': 'Acme Inc'
+        };
+        currentWorkspace = names[workspace];
+        document.getElementById('current-workspace').textContent = currentWorkspace;
+        document.getElementById('workspace-dropdown').classList.add('hidden');
+        showToast(`Switched to ${currentWorkspace}`);
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.remove('translate-x-full');
+        
+        if (type === 'error') {
+            toast.classList.remove('bg-green-600');
+            toast.classList.add('bg-red-600');
+        } else {
+            toast.classList.remove('bg-red-600');
+            toast.classList.add('bg-green-600');
+        }
+        
+        setTimeout(() => {
+            toast.classList.add('translate-x-full');
+        }, 3000);
+    }
+
+    // Click outside to close dropdown
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('workspace-dropdown');
+        const button = event.target.closest('button');
+        if (!button || !button.querySelector('#current-workspace')) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Demo data
+    const demoData = {
+        members: 8,
+        projects: 12,
+        tasks: 156
+    };
+</script>
+
+<style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    
+    /* Animations */
+    .sidebar-item {
+        transition: all 0.2s ease;
+    }
+    
+    .sidebar-item:hover {
+        background-color: #f3f4f6;
+    }
+    
+    .sidebar-item.active {
+        background-color: #eff6ff;
+        color: #2563eb;
+    }
+    
+    /* Loading states */
+    .loading {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid #fff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spinner 0.6s linear infinite;
+    }
+    
+    @keyframes spinner {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Form focus styles */
+    input:focus {
+        outline: none;
+        ring: 2px solid #3b82f6;
+    }
+    
+    /* Card hover effects */
+    .card-hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+</style>
+</body>
+</html>
