@@ -3,201 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskFlow - Multi-tenant SaaS Demo</title>
+    <title>TaskFlow - Workspace Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Inter', sans-serif; }
         .transition-all { transition: all 0.3s ease; }
-        .sidebar { transition: transform 0.3s ease; }
-        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } }
         
-        /* Demo banner */
-        .demo-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* Custom animations */
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         
-        /* Credential cards hover effect */
-        .cred-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+        .page {
+            animation: slideIn 0.3s ease;
         }
-        .cred-card:hover {
+        
+        /* Card hover effects */
+        .hover-card {
+            transition: all 0.2s ease;
+        }
+        .hover-card:hover {
             transform: translateY(-2px);
-            border-color: #667eea;
-            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-gray-50">
 
-<!-- Demo Banner -->
-<div class="demo-banner text-white py-2 px-4 text-center text-sm font-medium">
-    🚀 DEMO MODE - Use any of the credentials below to login
-</div>
-
-<!-- Demo Credentials Quick Access -->
-<div class="bg-white border-b shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 py-3">
-        <p class="text-xs text-gray-500 mb-2">⚡ Quick Login - Click any account to auto-fill:</p>
-        <div class="flex flex-wrap gap-2">
-            <button onclick="fillDemoLogin('admin@demo.com', 'password123', 'demo')" 
-                class="cred-card bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-purple-100">
-                👑 Admin (demo)
-            </button>
-            <button onclick="fillDemoLogin('member@demo.com', 'password123', 'demo')" 
-                class="cred-card bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-100">
-                👤 Member (demo)
-            </button>
-            <button onclick="fillDemoLogin('admin@acme.com', 'password123', 'acme')" 
-                class="cred-card bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-100">
-                🏢 Acme Admin
-            </button>
-            <button onclick="fillDemoLogin('john@acme.com', 'password123', 'acme')" 
-                class="cred-card bg-yellow-50 text-yellow-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-yellow-100">
-                ⭐ Acme Member
-            </button>
-        </div>
-    </div>
-</div>
-
 <!-- App Container -->
 <div id="app" class="min-h-screen">
-    <!-- Auth Pages -->
-    <div id="auth-pages">
-        <!-- Login Page -->
-        <div id="login-page" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
-                <!-- Demo Credentials Card -->
-                <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h3 class="text-sm font-semibold text-blue-800 mb-2">📋 Demo Credentials</h3>
-                    <div class="space-y-2 text-xs">
-                        <div class="flex justify-between items-center">
-                            <span class="text-blue-700">Admin (demo):</span>
-                            <code class="bg-white px-2 py-1 rounded">admin@demo.com / password123</code>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-blue-700">Member (demo):</span>
-                            <code class="bg-white px-2 py-1 rounded">member@demo.com / password123</code>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-blue-700">Acme Admin:</span>
-                            <code class="bg-white px-2 py-1 rounded">admin@acme.com / password123</code>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-blue-700">Acme Member:</span>
-                            <code class="bg-white px-2 py-1 rounded">john@acme.com / password123</code>
-                        </div>
+    <!-- Login Page -->
+    <div id="login-page" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+            <!-- Demo Credentials - Subtle and small -->
+            <div class="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-xs font-medium text-gray-500 mb-2 flex items-center">
+                    <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linecap="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Quick Access
+                </p>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="flex items-center space-x-1 text-gray-600">
+                        <span class="w-16">Admin:</span>
+                        <code class="bg-white px-1.5 py-0.5 rounded border">admin@demo.com</code>
+                    </div>
+                    <div class="flex items-center space-x-1 text-gray-600">
+                        <span class="w-16">Pass:</span>
+                        <code class="bg-white px-1.5 py-0.5 rounded border">password123</code>
+                    </div>
+                    <div class="flex items-center space-x-1 text-gray-600">
+                        <span class="w-16">Member:</span>
+                        <code class="bg-white px-1.5 py-0.5 rounded border">member@demo.com</code>
+                    </div>
+                    <div class="flex items-center space-x-1 text-gray-600">
+                        <span class="w-16">Acme:</span>
+                        <code class="bg-white px-1.5 py-0.5 rounded border">admin@acme.com</code>
                     </div>
                 </div>
-
-                <div class="text-center mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900">TaskFlow</h1>
-                    <p class="text-gray-600 mt-2">Sign in to your workspace</p>
-                </div>
-                
-                <form id="login-form" class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" id="login-email" value="admin@demo.com" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="you@example.com">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <input type="password" id="login-password" value="password123" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="••••••••">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Workspace (optional)</label>
-                        <input type="text" id="login-workspace" value="demo"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="your-workspace">
-                        <p class="text-xs text-gray-500 mt-1">Try: demo, acme</p>
-                    </div>
-                    
-                    <button type="submit" 
-                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Sign In (Demo)
-                    </button>
-                </form>
-                
-                <p class="text-center mt-6 text-gray-600">
-                    Don't have an account? 
-                    <button onclick="showRegister()" class="text-blue-600 font-semibold hover:underline">Sign up (Demo)</button>
-                </p>
-                
-                <p class="text-center mt-4 text-xs text-gray-400">
-                    🔐 Demo: Any credentials work! Click the quick login buttons above
-                </p>
             </div>
-        </div>
 
-        <!-- Register Page -->
-        <div id="register-page" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
-                <div class="text-center mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
-                    <p class="text-gray-600 mt-2">Start your free trial</p>
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">TaskFlow</h1>
+                <p class="text-gray-500 mt-2">Sign in to your workspace</p>
+            </div>
+            
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                    <input type="email" id="login-email" value="admin@demo.com" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                 </div>
                 
-                <form id="register-form" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                        <input type="text" id="register-fullname" value="Demo User"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="John Doe">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" id="register-email" value="demo@example.com" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="you@example.com">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                        <input type="text" id="register-username" value="demouser" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="johndoe">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <input type="password" id="register-password" value="password123" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="••••••••">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                        <input type="password" id="register-confirm" value="password123" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="••••••••">
-                    </div>
-                    
-                    <button type="submit" 
-                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Create Account (Demo)
-                    </button>
-                </form>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                    <input type="password" id="login-password" value="password123" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
                 
-                <p class="text-center mt-6 text-gray-600">
-                    Already have an account? 
-                    <button onclick="showLogin()" class="text-blue-600 font-semibold hover:underline">Sign in</button>
-                </p>
-            </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Workspace (optional)</label>
+                    <input type="text" id="login-workspace" value="demo"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="your-workspace">
+                </div>
+                
+                <button type="submit" 
+                    class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                    Sign In
+                </button>
+            </form>
+            
+            <p class="text-center mt-6 text-sm text-gray-500">
+                New to TaskFlow? 
+                <button onclick="showRegister()" class="text-indigo-600 font-medium hover:underline">Create account</button>
+            </p>
         </div>
     </div>
 
-    <!-- Main App Pages (Authenticated) -->
+    <!-- Register Page -->
+    <div id="register-page" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
+                <p class="text-gray-500 mt-2">Start your 14-day free trial</p>
+            </div>
+            
+            <form id="register-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+                    <input type="text" id="register-fullname" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                    <input type="email" id="register-email" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Username</label>
+                    <input type="text" id="register-username" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                    <input type="password" id="register-password" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
+                    <input type="password" id="register-confirm" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <button type="submit" 
+                    class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                    Create Account
+                </button>
+            </form>
+            
+            <p class="text-center mt-6 text-sm text-gray-500">
+                Already have an account? 
+                <button onclick="showLogin()" class="text-indigo-600 font-medium hover:underline">Sign in</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App Pages -->
     <div id="app-pages" class="hidden">
         <!-- Top Navigation -->
-        <nav class="bg-white shadow-sm border-b">
+        <nav class="bg-white border-b border-gray-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
@@ -205,7 +172,7 @@
                         
                         <!-- Workspace Switcher -->
                         <div class="ml-10 relative" id="workspace-switcher">
-                            <button onclick="toggleWorkspaceDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                            <button onclick="toggleWorkspaceDropdown()" class="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900">
                                 <span id="current-workspace">Demo Workspace</span>
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linecap="round" d="M19 9l-7 7-7-7"></path>
@@ -216,6 +183,7 @@
                                 <div class="py-1">
                                     <button onclick="switchWorkspace('Demo Workspace', 'demo')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Demo Workspace</button>
                                     <button onclick="switchWorkspace('Acme Inc', 'acme')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Acme Inc</button>
+                                    <button onclick="switchWorkspace('Startup Labs', 'startup')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Startup Labs</button>
                                 </div>
                             </div>
                         </div>
@@ -223,8 +191,8 @@
                     
                     <div class="flex items-center space-x-4">
                         <span class="text-sm text-gray-600" id="user-name">Admin User</span>
-                        <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full" id="user-role-badge">Admin</span>
-                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
+                        <span class="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full" id="user-role-badge">Admin</span>
+                        <button onclick="logout()" class="text-gray-400 hover:text-gray-600">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linecap="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
@@ -234,18 +202,41 @@
             </div>
         </nav>
 
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar -->
         <div class="flex">
-            <aside class="w-64 bg-white shadow-sm min-h-[calc(100vh-4rem)]">
+            <aside class="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
                 <nav class="p-4 space-y-1">
-                    <button onclick="showPage('dashboard')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                    <button onclick="showPage('dashboard')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 rounded-lg hover:bg-gray-50">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linecap="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
                         <span>Dashboard</span>
                     </button>
                     
-                    <button onclick="showPage('settings')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                    <button onclick="showPage('projects')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 rounded-lg hover:bg-gray-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linecap="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <span>Projects</span>
+                    </button>
+                    
+                    <button onclick="showPage('tasks')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 rounded-lg hover:bg-gray-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linecap="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span>Tasks</span>
+                    </button>
+                    
+                    <button onclick="showPage('team')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 rounded-lg hover:bg-gray-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linecap="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <span>Team</span>
+                    </button>
+                    
+                    <div class="border-t border-gray-200 my-4"></div>
+                    
+                    <button onclick="showPage('settings')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 rounded-lg hover:bg-gray-50">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                             <path stroke-linecap="round" stroke-linecap="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -253,16 +244,16 @@
                         <span>Settings</span>
                     </button>
                     
-                    <button onclick="showPage('billing')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                    <button onclick="showPage('billing')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 rounded-lg hover:bg-gray-50">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linecap="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                         </svg>
                         <span>Billing</span>
                     </button>
                     
-                    <button onclick="showPage('admin')" id="admin-sidebar-link" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                    <button onclick="showPage('admin')" id="admin-sidebar-link" class="sidebar-item w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 rounded-lg hover:bg-gray-50">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linecap="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            <path stroke-linecap="round" stroke-linecap="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <span>Admin</span>
                     </button>
@@ -275,93 +266,141 @@
                 <div id="dashboard-page" class="page">
                     <div class="flex justify-between items-center mb-8">
                         <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm text-gray-500">Logged in as:</span>
-                            <span class="text-sm font-medium text-gray-900" id="dashboard-user-info">Admin (demo)</span>
-                        </div>
+                        <div class="text-sm text-gray-500" id="dashboard-user-info"></div>
                     </div>
                     
                     <!-- Stats -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center">
-                                <div class="bg-blue-100 rounded-lg p-3">
-                                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-sm p-6 hover-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500">Total Members</p>
+                                    <p class="text-2xl font-bold text-gray-900" id="stat-members">24</p>
+                                </div>
+                                <div class="bg-indigo-50 p-3 rounded-lg">
+                                    <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linecap="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                                     </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm text-gray-600">Team Members</p>
-                                    <p class="text-2xl font-semibold text-gray-900" id="member-count">8</p>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center">
-                                <div class="bg-green-100 rounded-lg p-3">
+                        <div class="bg-white rounded-xl shadow-sm p-6 hover-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500">Active Projects</p>
+                                    <p class="text-2xl font-bold text-gray-900" id="stat-projects">18</p>
+                                </div>
+                                <div class="bg-green-50 p-3 rounded-lg">
                                     <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linecap="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                     </svg>
                                 </div>
-                                <div class="ml-4">
-                                    <p class="text-sm text-gray-600">Active Projects</p>
-                                    <p class="text-2xl font-semibold text-gray-900">12</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm p-6 hover-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500">Open Tasks</p>
+                                    <p class="text-2xl font-bold text-gray-900" id="stat-tasks">47</p>
+                                </div>
+                                <div class="bg-yellow-50 p-3 rounded-lg">
+                                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linecap="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center">
-                                <div class="bg-purple-100 rounded-lg p-3">
+                        <div class="bg-white rounded-xl shadow-sm p-6 hover-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500">Completed</p>
+                                    <p class="text-2xl font-bold text-gray-900" id="stat-completed">156</p>
+                                </div>
+                                <div class="bg-purple-50 p-3 rounded-lg">
                                     <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linecap="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
-                                <div class="ml-4">
-                                    <p class="text-sm text-gray-600">Tasks Completed</p>
-                                    <p class="text-2xl font-semibold text-gray-900">156</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts & Activity -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Recent Activity -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-white rounded-xl shadow-sm p-6">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
+                                <div class="space-y-4" id="recent-activity">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Upcoming Deadlines -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-white rounded-xl shadow-sm p-6">
+                                <h2 class="text-lg font-semibold text-gray-900 mb-4">Upcoming Deadlines</h2>
+                                <div class="space-y-3" id="upcoming-deadlines">
+                                    <!-- Dynamic content -->
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Projects Page -->
+                <div id="projects-page" class="page hidden">
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-2xl font-bold text-gray-900">Projects</h1>
+                        <button onclick="showToast('New project created')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+                            + New Project
+                        </button>
+                    </div>
                     
-                    <!-- Recent Activity -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div class="bg-white rounded-lg shadow p-6">
-                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Team Members</h2>
-                            <div class="space-y-4" id="team-members-list">
-                                <!-- Dynamic team members will be populated by JS -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="projects-list">
+                        <!-- Projects will be populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Tasks Page -->
+                <div id="tasks-page" class="page hidden">
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-2xl font-bold text-gray-900">Tasks</h1>
+                        <button onclick="showToast('New task created')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+                            + New Task
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b">
+                            <div class="flex space-x-4">
+                                <button class="text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 pb-2">All Tasks</button>
+                                <button class="text-sm font-medium text-gray-500 hover:text-gray-700 pb-2">My Tasks</button>
+                                <button class="text-sm font-medium text-gray-500 hover:text-gray-700 pb-2">Completed</button>
                             </div>
                         </div>
-                        
-                        <div class="bg-white rounded-lg shadow p-6">
-                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Tasks</h2>
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Update dashboard UI</p>
-                                        <p class="text-xs text-gray-500">Due in 2 days</p>
-                                    </div>
-                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">In Progress</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Fix login bug</p>
-                                        <p class="text-xs text-gray-500">Due today</p>
-                                    </div>
-                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">Urgent</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">API documentation</p>
-                                        <p class="text-xs text-gray-500">Due next week</p>
-                                    </div>
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Completed</span>
-                                </div>
-                            </div>
+                        <div class="p-6" id="tasks-list">
+                            <!-- Tasks will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Page -->
+                <div id="team-page" class="page hidden">
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-2xl font-bold text-gray-900">Team Members</h1>
+                        <button onclick="showToast('Invitation sent')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+                            Invite Member
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6" id="team-members-list">
+                            <!-- Team members will be populated by JS -->
                         </div>
                     </div>
                 </div>
@@ -370,76 +409,140 @@
                 <div id="settings-page" class="page hidden">
                     <h1 class="text-2xl font-bold text-gray-900 mb-8">Settings</h1>
                     
-                    <div class="bg-white rounded-lg shadow">
+                    <div class="bg-white rounded-xl shadow-sm">
                         <div class="border-b">
-                            <nav class="flex space-x-8 px-6" aria-label="Tabs">
-                                <button onclick="showSettingsTab('profile')" class="settings-tab py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium text-sm" id="tab-profile">Profile</button>
-                                <button onclick="showSettingsTab('workspace')" class="settings-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" id="tab-workspace">Workspace</button>
-                                <button onclick="showSettingsTab('security')" class="settings-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" id="tab-security">Security</button>
+                            <nav class="flex space-x-8 px-6">
+                                <button onclick="showSettingsTab('profile')" class="settings-tab py-4 px-1 border-b-2 border-indigo-600 text-indigo-600 font-medium text-sm">Profile</button>
+                                <button onclick="showSettingsTab('workspace')" class="settings-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">Workspace</button>
+                                <button onclick="showSettingsTab('security')" class="settings-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">Security</button>
+                                <button onclick="showSettingsTab('notifications')" class="settings-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">Notifications</button>
                             </nav>
                         </div>
                         
                         <!-- Profile Settings -->
                         <div id="settings-profile" class="p-6">
-                            <form class="space-y-6 max-w-2xl">
+                            <form class="space-y-6 max-w-2xl" onsubmit="event.preventDefault(); showToast('Settings saved');">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                                    <input type="text" id="settings-fullname" value="Admin User" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="settings-fullname" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                 </div>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                    <input type="email" id="settings-email" value="admin@demo.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="email" id="settings-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                 </div>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                                    <input type="text" id="settings-username" value="admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="settings-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                 </div>
                                 
-                                <button type="button" onclick="showToast('Settings saved (demo)')" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Save Changes</button>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                                    <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Tell us about yourself...">Product manager with 5+ years of experience</textarea>
+                                </div>
+                                
+                                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700">Save Changes</button>
                             </form>
                         </div>
                         
                         <!-- Workspace Settings -->
                         <div id="settings-workspace" class="p-6 hidden">
-                            <form class="space-y-6 max-w-2xl">
+                            <form class="space-y-6 max-w-2xl" onsubmit="event.preventDefault(); showToast('Workspace updated');">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Workspace Name</label>
-                                    <input type="text" id="workspace-name" value="Demo Workspace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="workspace-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Subdomain</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Workspace URL</label>
                                     <div class="flex">
-                                        <input type="text" id="workspace-subdomain" value="demo" disabled class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-l-lg">
-                                        <span class="inline-flex items-center px-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-500">.taskflow.app</span>
+                                        <input type="text" id="workspace-url" class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-indigo-500">
+                                        <span class="inline-flex items-center px-3 bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg text-gray-500">.taskflow.app</span>
                                     </div>
                                 </div>
                                 
-                                <button type="button" onclick="showToast('Workspace updated (demo)')" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Update Workspace</button>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
+                                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                        <option>1-10 employees</option>
+                                        <option>11-50 employees</option>
+                                        <option>51-200 employees</option>
+                                        <option>201-500 employees</option>
+                                        <option>500+ employees</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700">Update Workspace</button>
                             </form>
                         </div>
                         
                         <!-- Security Settings -->
                         <div id="settings-security" class="p-6 hidden">
-                            <form class="space-y-6 max-w-2xl">
+                            <form class="space-y-6 max-w-2xl" onsubmit="event.preventDefault(); showToast('Password updated');">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-                                    <input type="password" value="password123" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                 </div>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                 </div>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                 </div>
                                 
-                                <button type="button" onclick="showToast('Password updated (demo)')" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Update Password</button>
+                                <div class="flex items-center">
+                                    <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded border-gray-300">
+                                    <label class="ml-2 text-sm text-gray-700">Enable two-factor authentication</label>
+                                </div>
+                                
+                                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700">Update Password</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Notifications Settings -->
+                        <div id="settings-notifications" class="p-6 hidden">
+                            <form class="space-y-6 max-w-2xl" onsubmit="event.preventDefault(); showToast('Notification preferences updated');">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="font-medium text-gray-700">Email Notifications</p>
+                                            <p class="text-sm text-gray-500">Receive email updates about your activity</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="font-medium text-gray-700">Task Assignments</p>
+                                            <p class="text-sm text-gray-500">Get notified when you're assigned to a task</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="font-medium text-gray-700">Project Updates</p>
+                                            <p class="text-sm text-gray-500">Receive updates about project progress</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700">Save Preferences</button>
                             </form>
                         </div>
                     </div>
@@ -447,141 +550,137 @@
 
                 <!-- Billing Page -->
                 <div id="billing-page" class="page hidden">
-                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Billing & Subscription</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Billing</h1>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-8">
                             <!-- Current Plan -->
-                            <div class="bg-white rounded-lg shadow p-6">
+                            <div class="bg-white rounded-xl shadow-sm p-6">
                                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Current Plan</h2>
                                 
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
-                                        <p class="text-sm text-gray-600">Plan</p>
-                                        <p class="text-xl font-semibold text-gray-900">Pro Plan</p>
+                                        <p class="text-sm text-gray-500">Plan</p>
+                                        <p class="text-xl font-semibold text-gray-900">Professional</p>
                                     </div>
-                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Active</span>
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">Active</span>
                                 </div>
                                 
                                 <div class="border-t pt-4">
                                     <div class="flex items-center justify-between text-sm">
-                                        <span class="text-gray-600">Current period</span>
-                                        <span class="text-gray-900">Mar 1, 2024 - Mar 31, 2024</span>
+                                        <span class="text-gray-500">Billing period</span>
+                                        <span class="text-gray-900">March 1 - March 31, 2024</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-sm mt-2">
+                                        <span class="text-gray-500">Amount</span>
+                                        <span class="text-gray-900 font-medium">$49/month</span>
                                     </div>
                                 </div>
                                 
-                                <div class="mt-6">
-                                    <button onclick="showToast('Subscription canceled (demo)')" class="text-red-600 hover:text-red-700 text-sm font-medium">Cancel subscription</button>
+                                <div class="mt-6 flex space-x-4">
+                                    <button onclick="showToast('Plan changed')" class="text-indigo-600 text-sm font-medium hover:text-indigo-700">Change Plan</button>
+                                    <button onclick="showToast('Subscription canceled')" class="text-red-600 text-sm font-medium hover:text-red-700">Cancel Subscription</button>
                                 </div>
                             </div>
                             
                             <!-- Payment Method -->
-                            <div class="bg-white rounded-lg shadow p-6">
+                            <div class="bg-white rounded-xl shadow-sm p-6">
                                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment Method</h2>
                                 
                                 <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                     <div class="flex items-center">
-                                        <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M22 4H2v16h20V4zm-2 14H4V8h16v10zM6 12h12v2H6v-2z"/>
-                                        </svg>
+                                        <div class="bg-white p-2 rounded-lg">
+                                            <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M22 4H2v16h20V4zm-2 14H4V8h16v10zM6 12h12v2H6v-2z"/>
+                                            </svg>
+                                        </div>
                                         <div class="ml-3">
                                             <p class="text-sm font-medium text-gray-900">Visa ending in 4242</p>
                                             <p class="text-xs text-gray-500">Expires 12/25</p>
                                         </div>
                                     </div>
-                                    <button onclick="showToast('Payment method updated (demo)')" class="text-blue-600 text-sm font-medium hover:text-blue-700">Update</button>
+                                    <button onclick="showToast('Payment method updated')" class="text-indigo-600 text-sm font-medium hover:text-indigo-700">Update</button>
                                 </div>
                             </div>
                             
                             <!-- Invoices -->
-                            <div class="bg-white rounded-lg shadow p-6">
+                            <div class="bg-white rounded-xl shadow-sm p-6">
                                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Invoices</h2>
                                 
-                                <div class="space-y-3">
-                                    <div class="flex items-center justify-between py-3 border-b">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-900">Invoice #INV-001</p>
-                                            <p class="text-xs text-gray-500">Mar 1, 2024</p>
-                                        </div>
-                                        <div class="flex items-center space-x-4">
-                                            <span class="text-sm font-medium">$29.00</span>
-                                            <button onclick="showToast('Downloading invoice (demo)')" class="text-blue-600 text-sm hover:underline">Download</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between py-3 border-b">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-900">Invoice #INV-002</p>
-                                            <p class="text-xs text-gray-500">Feb 1, 2024</p>
-                                        </div>
-                                        <div class="flex items-center space-x-4">
-                                            <span class="text-sm font-medium">$29.00</span>
-                                            <button onclick="showToast('Downloading invoice (demo)')" class="text-blue-600 text-sm hover:underline">Download</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between py-3">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-900">Invoice #INV-003</p>
-                                            <p class="text-xs text-gray-500">Jan 1, 2024</p>
-                                        </div>
-                                        <div class="flex items-center space-x-4">
-                                            <span class="text-sm font-medium">$29.00</span>
-                                            <button onclick="showToast('Downloading invoice (demo)')" class="text-blue-600 text-sm hover:underline">Download</button>
-                                        </div>
-                                    </div>
+                                <div class="space-y-3" id="invoices-list">
+                                    <!-- Invoices will be populated by JS -->
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Plan Comparison -->
                         <div class="lg:col-span-1">
-                            <div class="bg-white rounded-lg shadow p-6">
+                            <div class="bg-white rounded-xl shadow-sm p-6">
                                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Available Plans</h2>
                                 
                                 <div class="space-y-4">
-                                    <div class="border rounded-lg p-4">
-                                        <h3 class="font-medium">Free</h3>
-                                        <p class="text-2xl font-bold mt-2">$0</p>
+                                    <div class="border rounded-lg p-4 hover-card">
+                                        <h3 class="font-medium">Basic</h3>
+                                        <p class="text-2xl font-bold mt-2">$19</p>
                                         <p class="text-sm text-gray-500">per month</p>
                                         <ul class="mt-4 space-y-2 text-sm">
-                                            <li class="flex items-center">
+                                            <li class="flex items-center text-gray-600">
                                                 <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
                                                 </svg>
-                                                5 team members
+                                                10 team members
                                             </li>
-                                            <li class="flex items-center">
+                                            <li class="flex items-center text-gray-600">
                                                 <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
                                                 </svg>
-                                                10 projects
+                                                20 projects
                                             </li>
                                         </ul>
                                     </div>
                                     
-                                    <div class="border-2 border-blue-500 rounded-lg p-4 bg-blue-50">
-                                        <h3 class="font-medium text-blue-900">Pro</h3>
-                                        <p class="text-2xl font-bold text-blue-900 mt-2">$29</p>
-                                        <p class="text-sm text-blue-700">per month</p>
-                                        <ul class="mt-4 space-y-2 text-sm text-blue-800">
+                                    <div class="border-2 border-indigo-500 rounded-lg p-4 bg-indigo-50 hover-card">
+                                        <h3 class="font-medium text-indigo-900">Professional</h3>
+                                        <p class="text-2xl font-bold text-indigo-900 mt-2">$49</p>
+                                        <p class="text-sm text-indigo-700">per month</p>
+                                        <ul class="mt-4 space-y-2 text-sm text-indigo-800">
                                             <li class="flex items-center">
-                                                <svg class="h-4 w-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="h-4 w-4 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                                 Unlimited members
                                             </li>
                                             <li class="flex items-center">
-                                                <svg class="h-4 w-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="h-4 w-4 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                                 Unlimited projects
                                             </li>
                                             <li class="flex items-center">
-                                                <svg class="h-4 w-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="h-4 w-4 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                                 Priority support
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="border rounded-lg p-4 hover-card">
+                                        <h3 class="font-medium">Enterprise</h3>
+                                        <p class="text-2xl font-bold mt-2">$99</p>
+                                        <p class="text-sm text-gray-500">per month</p>
+                                        <ul class="mt-4 space-y-2 text-sm">
+                                            <li class="flex items-center text-gray-600">
+                                                <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Everything in Pro
+                                            </li>
+                                            <li class="flex items-center text-gray-600">
+                                                <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                SSO & advanced security
                                             </li>
                                         </ul>
                                     </div>
@@ -593,87 +692,73 @@
 
                 <!-- Admin Page -->
                 <div id="admin-page" class="page hidden">
-                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Admin Panel</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
                     
-                    <div class="bg-white rounded-lg shadow">
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-lg font-semibold text-gray-900">Team Members</h2>
-                                <button onclick="showToast('Invite member (demo)')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
-                                    Invite Member
-                                </button>
+                    <!-- Admin Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500">Total Users</p>
+                                    <p class="text-2xl font-bold text-gray-900">156</p>
+                                </div>
+                                <div class="bg-purple-50 p-3 rounded-lg">
+                                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linecap="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                </div>
                             </div>
-                            
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200" id="admin-team-members">
-                                        <!-- Dynamic content -->
-                                    </tbody>
-                                </table>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500">Workspaces</p>
+                                    <p class="text-2xl font-bold text-gray-900">24</p>
+                                </div>
+                                <div class="bg-blue-50 p-3 rounded-lg">
+                                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linecap="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500">MRR</p>
+                                    <p class="text-2xl font-bold text-gray-900">$7,644</p>
+                                </div>
+                                <div class="bg-green-50 p-3 rounded-lg">
+                                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linecap="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Roles & Permissions -->
-                    <div class="mt-8 bg-white rounded-lg shadow p-6">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Roles & Permissions</h2>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <h3 class="font-medium text-gray-900 mb-2">Admin</h3>
-                                <ul class="space-y-2 text-sm text-gray-600">
-                                    <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Manage workspace settings
-                                    </li>
-                                    <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Manage team members
-                                    </li>
-                                    <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Manage billing
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <h3 class="font-medium text-gray-900 mb-2">Member</h3>
-                                <ul class="space-y-2 text-sm text-gray-600">
-                                    <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Create and edit tasks
-                                    </li>
-                                    <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        View team projects
-                                    </li>
-                                    <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Comment on tasks
-                                    </li>
-                                </ul>
-                            </div>
+                    <!-- User Management -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b">
+                            <h2 class="text-lg font-semibold text-gray-900">User Management</h2>
+                        </div>
+                        <div class="p-6">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="text-left text-xs font-medium text-gray-500 uppercase">
+                                        <th class="pb-3">User</th>
+                                        <th class="pb-3">Workspace</th>
+                                        <th class="pb-3">Role</th>
+                                        <th class="pb-3">Status</th>
+                                        <th class="pb-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm" id="admin-users-list">
+                                    <!-- Will be populated by JS -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -683,450 +768,457 @@
 </div>
 
 <!-- Toast Notification -->
-<div id="toast" class="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full z-50"></div>
+<div id="toast" class="fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 translate-y-full text-sm"></div>
 
 <script>
-    // Demo user database
-    const DEMO_USERS = {
-        'admin@demo.com': {
-            name: 'Admin User',
-            role: 'admin',
-            workspace: 'demo',
-            fullName: 'Admin User',
-            username: 'admin'
-        },
-        'member@demo.com': {
-            name: 'Member User',
-            role: 'member',
-            workspace: 'demo',
-            fullName: 'Member User',
-            username: 'member'
-        },
-        'admin@acme.com': {
-            name: 'Acme Admin',
-            role: 'admin',
-            workspace: 'acme',
-            fullName: 'Acme Admin',
-            username: 'acme_admin'
-        },
-        'john@acme.com': {
-            name: 'John Doe',
-            role: 'member',
-            workspace: 'acme',
-            fullName: 'John Doe',
-            username: 'john_doe'
-        }
-    };
-
-    // Workspace data
+    // Mock Data
     const WORKSPACES = {
         'demo': {
             name: 'Demo Workspace',
             members: [
-                { name: 'Admin User', email: 'admin@demo.com', role: 'admin', status: 'Active', initials: 'AU' },
-                { name: 'Member User', email: 'member@demo.com', role: 'member', status: 'Active', initials: 'MU' },
-                { name: 'Sarah Wilson', email: 'sarah@demo.com', role: 'member', status: 'Active', initials: 'SW' },
-                { name: 'Mike Brown', email: 'mike@demo.com', role: 'member', status: 'Pending', initials: 'MB' }
+                { name: 'Admin User', email: 'admin@demo.com', role: 'admin', status: 'active', avatar: 'AU', lastActive: '2 min ago' },
+                { name: 'Sarah Chen', email: 'sarah@demo.com', role: 'member', status: 'active', avatar: 'SC', lastActive: '5 min ago' },
+                { name: 'Mike Ross', email: 'mike@demo.com', role: 'member', status: 'active', avatar: 'MR', lastActive: '1 hour ago' },
+                { name: 'Rachel Zane', email: 'rachel@demo.com', role: 'member', status: 'away', avatar: 'RZ', lastActive: '2 hours ago' }
+            ],
+            projects: [
+                { name: 'Website Redesign', progress: 75, tasks: 12, completed: 9, dueDate: '2024-04-15', color: 'indigo' },
+                { name: 'Mobile App Development', progress: 45, tasks: 24, completed: 11, dueDate: '2024-05-01', color: 'green' },
+                { name: 'Marketing Campaign', progress: 90, tasks: 8, completed: 7, dueDate: '2024-03-30', color: 'purple' }
+            ],
+            tasks: [
+                { title: 'Update dashboard UI', assignee: 'Sarah Chen', priority: 'high', dueDate: '2024-03-25', status: 'in-progress' },
+                { title: 'Fix login bug', assignee: 'Mike Ross', priority: 'urgent', dueDate: '2024-03-23', status: 'todo' },
+                { title: 'API documentation', assignee: 'Rachel Zane', priority: 'medium', dueDate: '2024-03-28', status: 'review' },
+                { title: 'User testing session', assignee: 'Admin User', priority: 'low', dueDate: '2024-03-29', status: 'todo' }
             ]
         },
         'acme': {
             name: 'Acme Inc',
             members: [
-                { name: 'Acme Admin', email: 'admin@acme.com', role: 'admin', status: 'Active', initials: 'AA' },
-                { name: 'John Doe', email: 'john@acme.com', role: 'member', status: 'Active', initials: 'JD' },
-                { name: 'Jane Smith', email: 'jane@acme.com', role: 'member', status: 'Active', initials: 'JS' },
-                { name: 'Bob Johnson', email: 'bob@acme.com', role: 'member', status: 'Inactive', initials: 'BJ' }
+                { name: 'John Smith', email: 'john@acme.com', role: 'admin', status: 'active', avatar: 'JS', lastActive: 'Just now' },
+                { name: 'Emma Wilson', email: 'emma@acme.com', role: 'member', status: 'active', avatar: 'EW', lastActive: '15 min ago' },
+                { name: 'Tom Brown', email: 'tom@acme.com', role: 'member', status: 'inactive', avatar: 'TB', lastActive: '1 day ago' }
+            ],
+            projects: [
+                { name: 'Product Launch', progress: 60, tasks: 15, completed: 9, dueDate: '2024-04-20', color: 'blue' },
+                { name: 'Customer Portal', progress: 30, tasks: 20, completed: 6, dueDate: '2024-05-15', color: 'orange' }
+            ],
+            tasks: [
+                { title: 'Prepare presentation', assignee: 'John Smith', priority: 'high', dueDate: '2024-03-24', status: 'in-progress' },
+                { title: 'Update customer database', assignee: 'Emma Wilson', priority: 'medium', dueDate: '2024-03-26', status: 'todo' }
+            ]
+        },
+        'startup': {
+            name: 'Startup Labs',
+            members: [
+                { name: 'Alex Kim', email: 'alex@startup.com', role: 'admin', status: 'active', avatar: 'AK', lastActive: '30 min ago' },
+                { name: 'Lisa Park', email: 'lisa@startup.com', role: 'member', status: 'active', avatar: 'LP', lastActive: '1 hour ago' },
+                { name: 'James Lee', email: 'james@startup.com', role: 'member', status: 'active', avatar: 'JL', lastActive: '3 hours ago' }
+            ],
+            projects: [
+                { name: 'MVP Development', progress: 85, tasks: 18, completed: 15, dueDate: '2024-04-05', color: 'pink' },
+                { name: 'Investor Deck', progress: 95, tasks: 6, completed: 5, dueDate: '2024-03-28', color: 'yellow' }
+            ],
+            tasks: [
+                { title: 'Finalize pitch deck', assignee: 'Alex Kim', priority: 'high', dueDate: '2024-03-25', status: 'review' },
+                { title: 'User interviews', assignee: 'Lisa Park', priority: 'medium', dueDate: '2024-03-27', status: 'todo' }
             ]
         }
     };
 
-    // State management
+    // State
     let currentUser = null;
-    let currentWorkspace = 'Demo Workspace';
     let currentWorkspaceId = 'demo';
-    let isAuthenticated = false;
+    let currentWorkspace = WORKSPACES['demo'];
 
-    // Initialize app
+    // Initialize
     window.onload = function() {
-        showLogin();
-        
-        // Add form submit handlers
-        document.getElementById('login-form').addEventListener('submit', handleLogin);
-        document.getElementById('register-form').addEventListener('submit', handleRegister);
-    };
-
-    // Fill demo login credentials
-    function fillDemoLogin(email, password, workspace) {
-        document.getElementById('login-email').value = email;
-        document.getElementById('login-password').value = password;
-        document.getElementById('login-workspace').value = workspace;
-        showToast(`✅ Filled: ${email}`);
-    }
-
-    // Authentication functions
-    function handleLogin(e) {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        const workspace = document.getElementById('login-workspace').value;
-        
-        // Demo authentication - accept any credentials but use demo users for different roles
-        if (email && password) {
-            // Check if it's a known demo user
-            const demoUser = DEMO_USERS[email];
-            
-            if (demoUser) {
-                currentUser = {
-                    name: demoUser.name,
-                    email: email,
-                    role: demoUser.role,
-                    fullName: demoUser.fullName,
-                    username: demoUser.username
-                };
-                currentWorkspaceId = demoUser.workspace;
-                currentWorkspace = WORKSPACES[currentWorkspaceId].name;
-            } else {
-                // Default to admin for any other credentials
-                currentUser = {
-                    name: 'Demo User',
-                    email: email,
-                    role: 'admin',
-                    fullName: 'Demo User',
-                    username: 'demouser'
-                };
-                currentWorkspaceId = workspace || 'demo';
-                currentWorkspace = WORKSPACES[currentWorkspaceId]?.name || 'Demo Workspace';
-            }
-            
-            isAuthenticated = true;
-            showToast(`✅ Logged in as ${currentUser.role} (Demo Mode)`);
+        // Auto-login as admin for demo
+        setTimeout(() => {
+            currentUser = {
+                name: 'Admin User',
+                email: 'admin@demo.com',
+                role: 'admin',
+                fullName: 'Admin User',
+                username: 'admin'
+            };
             showApp();
             showPage('dashboard');
-            updateUIForUser();
-        } else {
-            showToast('Please fill in all fields', 'error');
-        }
-    }
+            updateUI();
+        }, 100);
+    };
 
-    function handleRegister(e) {
+    // Login Handler
+    document.getElementById('login-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        const fullname = document.getElementById('register-fullname').value;
-        const email = document.getElementById('register-email').value;
-        const password = document.getElementById('register-password').value;
-        const confirm = document.getElementById('register-confirm').value;
+        const email = document.getElementById('login-email').value;
+        const workspace = document.getElementById('login-workspace').value || 'demo';
         
-        if (password !== confirm) {
-            showToast('Passwords do not match', 'error');
-            return;
-        }
-        
-        // Simulate registration
-        if (fullname && email && password) {
-            showToast('✅ Registration successful! Please login.');
-            showLogin();
+        // Simple demo login
+        if (email.includes('admin')) {
+            currentUser = {
+                name: 'Admin User',
+                email: email,
+                role: 'admin',
+                fullName: 'Admin User',
+                username: 'admin'
+            };
         } else {
-            showToast('Please fill in all fields', 'error');
+            currentUser = {
+                name: 'Member User',
+                email: email,
+                role: 'member',
+                fullName: 'Member User',
+                username: 'member'
+            };
         }
-    }
+        
+        currentWorkspaceId = workspace in WORKSPACES ? workspace : 'demo';
+        currentWorkspace = WORKSPACES[currentWorkspaceId];
+        
+        showApp();
+        showPage('dashboard');
+        updateUI();
+        showToast('Signed in successfully');
+    });
 
-    function logout() {
-        isAuthenticated = false;
-        currentUser = null;
-        showToast('👋 Logged out successfully');
+    // Register Handler
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        showToast('Account created! Please sign in.');
         showLogin();
-    }
+    });
 
-    // Page navigation
     function showLogin() {
-        document.getElementById('auth-pages').classList.remove('hidden');
-        document.getElementById('app-pages').classList.add('hidden');
         document.getElementById('login-page').classList.remove('hidden');
         document.getElementById('register-page').classList.add('hidden');
+        document.getElementById('app-pages').classList.add('hidden');
     }
 
     function showRegister() {
-        document.getElementById('auth-pages').classList.remove('hidden');
-        document.getElementById('app-pages').classList.add('hidden');
         document.getElementById('login-page').classList.add('hidden');
         document.getElementById('register-page').classList.remove('hidden');
+        document.getElementById('app-pages').classList.add('hidden');
     }
 
     function showApp() {
-        document.getElementById('auth-pages').classList.add('hidden');
+        document.getElementById('login-page').classList.add('hidden');
+        document.getElementById('register-page').classList.add('hidden');
         document.getElementById('app-pages').classList.remove('hidden');
     }
 
-    function showPage(page) {
+    function logout() {
+        currentUser = null;
+        showLogin();
+        showToast('Signed out');
+    }
+
+    function showPage(pageId) {
         // Hide all pages
         document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
         
         // Show selected page
-        document.getElementById(`${page}-page`).classList.remove('hidden');
+        document.getElementById(`${pageId}-page`).classList.remove('hidden');
         
         // Update sidebar active state
         document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.classList.remove('bg-blue-50', 'text-blue-600');
+            item.classList.remove('bg-indigo-50', 'text-indigo-600');
         });
-        event.currentTarget.classList.add('bg-blue-50', 'text-blue-600');
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('bg-indigo-50', 'text-indigo-600');
+        }
         
-        // Refresh page data
-        if (page === 'dashboard') refreshDashboard();
-        if (page === 'admin') refreshAdminPanel();
-        if (page === 'settings') refreshSettings();
+        // Load page data
+        loadPageData(pageId);
     }
 
-    // Update UI based on user role
-    function updateUIForUser() {
-        document.getElementById('user-name').textContent = currentUser.name;
-        document.getElementById('user-role-badge').textContent = 
-            currentUser.role === 'admin' ? 'Admin' : 'Member';
-        document.getElementById('current-workspace').textContent = currentWorkspace;
+    function loadPageData(pageId) {
+        switch(pageId) {
+            case 'dashboard':
+                loadDashboard();
+                break;
+            case 'projects':
+                loadProjects();
+                break;
+            case 'tasks':
+                loadTasks();
+                break;
+            case 'team':
+                loadTeam();
+                break;
+            case 'billing':
+                loadBilling();
+                break;
+            case 'admin':
+                loadAdmin();
+                break;
+        }
+    }
+
+    function loadDashboard() {
         document.getElementById('dashboard-user-info').textContent = 
-            `${currentUser.name} (${currentUser.role})`;
+            `${currentUser.name} · ${currentWorkspace.name}`;
         
-        // Update settings fields
-        document.getElementById('settings-fullname').value = currentUser.fullName || currentUser.name;
+        document.getElementById('stat-members').textContent = currentWorkspace.members.length;
+        document.getElementById('stat-projects').textContent = currentWorkspace.projects.length;
+        
+        const totalTasks = currentWorkspace.tasks.length;
+        const completedTasks = currentWorkspace.tasks.filter(t => t.status === 'completed').length;
+        document.getElementById('stat-tasks').textContent = totalTasks;
+        document.getElementById('stat-completed').textContent = completedTasks;
+        
+        // Recent Activity
+        const activityEl = document.getElementById('recent-activity');
+        activityEl.innerHTML = currentWorkspace.tasks.slice(0, 3).map(task => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <span class="text-indigo-600 text-xs font-medium">${task.assignee.split(' ').map(n => n[0]).join('')}</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">${task.title}</p>
+                        <p class="text-xs text-gray-500">Assigned to ${task.assignee}</p>
+                    </div>
+                </div>
+                <span class="text-xs text-gray-500">${task.dueDate}</span>
+            </div>
+        `).join('');
+        
+        // Upcoming Deadlines
+        const deadlinesEl = document.getElementById('upcoming-deadlines');
+        deadlinesEl.innerHTML = currentWorkspace.tasks
+            .filter(t => t.status !== 'completed')
+            .slice(0, 3).map(task => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">${task.title}</p>
+                    <p class="text-xs text-gray-500">${task.assignee}</p>
+                </div>
+                <span class="text-xs ${task.priority === 'urgent' ? 'text-red-600' : 'text-gray-600'}">
+                    Due ${task.dueDate}
+                </span>
+            </div>
+        `).join('');
+    }
+
+    function loadProjects() {
+        const projectsEl = document.getElementById('projects-list');
+        projectsEl.innerHTML = currentWorkspace.projects.map(project => `
+            <div class="bg-white rounded-xl shadow-sm p-6 hover-card cursor-pointer" onclick="showToast('Opening ${project.name}')">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-gray-900">${project.name}</h3>
+                    <span class="px-2 py-1 bg-${project.color}-100 text-${project.color}-700 text-xs font-medium rounded-full">
+                        ${project.completed}/${project.tasks}
+                    </span>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Progress</span>
+                        <span>${project.progress}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-${project.color}-600 rounded-full h-2" style="width: ${project.progress}%"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-gray-500">Due ${project.dueDate}</span>
+                    <span class="text-gray-700">${project.tasks - project.completed} tasks left</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function loadTasks() {
+        const tasksEl = document.getElementById('tasks-list');
+        tasksEl.innerHTML = `
+            <div class="space-y-3">
+                ${currentWorkspace.tasks.map(task => `
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer" onclick="showToast('Opening task')">
+                        <div class="flex items-center">
+                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded border-gray-300 mr-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${task.title}</p>
+                                <p class="text-xs text-gray-500">Assigned to ${task.assignee}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full
+                                ${task.priority === 'urgent' ? 'bg-red-100 text-red-700' : 
+                                  task.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                                  task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-green-100 text-green-700'}">
+                                ${task.priority}
+                            </span>
+                            <span class="text-xs text-gray-500">Due ${task.dueDate}</span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function loadTeam() {
+        const teamEl = document.getElementById('team-members-list');
+        teamEl.innerHTML = `
+            <div class="space-y-4">
+                ${currentWorkspace.members.map(member => `
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                <span class="text-indigo-600 font-medium">${member.avatar}</span>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">${member.name}</p>
+                                <p class="text-xs text-gray-500">${member.email}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="px-2 py-1 ${member.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'} text-xs font-medium rounded-full">
+                                ${member.role}
+                            </span>
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 ${member.status === 'active' ? 'bg-green-500' : 'bg-yellow-500'} rounded-full mr-1"></span>
+                                <span class="text-xs text-gray-500">${member.status}</span>
+                            </span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function loadBilling() {
+        const invoicesEl = document.getElementById('invoices-list');
+        invoicesEl.innerHTML = [
+            { date: 'Mar 1, 2024', amount: 49.00, id: 'INV-2024-001' },
+            { date: 'Feb 1, 2024', amount: 49.00, id: 'INV-2024-002' },
+            { date: 'Jan 1, 2024', amount: 49.00, id: 'INV-2024-003' }
+        ].map(invoice => `
+            <div class="flex items-center justify-between py-3 border-b last:border-0">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">${invoice.id}</p>
+                    <p class="text-xs text-gray-500">${invoice.date}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-medium">$${invoice.amount}</span>
+                    <button onclick="showToast('Downloading invoice')" class="text-indigo-600 text-sm hover:underline">PDF</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function loadAdmin() {
+        if (currentUser.role !== 'admin') {
+            showPage('dashboard');
+            return;
+        }
+        
+        const adminUsersEl = document.getElementById('admin-users-list');
+        adminUsersEl.innerHTML = `
+            ${Object.entries(WORKSPACES).flatMap(([id, ws]) => 
+                ws.members.map(m => `
+                    <tr class="border-b">
+                        <td class="py-3">
+                            <div class="flex items-center">
+                                <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                    <span class="text-indigo-600 text-xs font-medium">${m.avatar}</span>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">${m.name}</p>
+                                    <p class="text-xs text-gray-500">${m.email}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 text-sm">${ws.name}</td>
+                        <td class="py-3">
+                            <span class="px-2 py-1 ${m.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'} text-xs font-medium rounded-full">
+                                ${m.role}
+                            </span>
+                        </td>
+                        <td class="py-3">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 ${m.status === 'active' ? 'bg-green-500' : 'bg-yellow-500'} rounded-full mr-1"></span>
+                                <span class="text-xs text-gray-500">${m.status}</span>
+                            </span>
+                        </td>
+                        <td class="py-3">
+                            <button onclick="showToast('Edit user')" class="text-indigo-600 text-sm hover:underline mr-3">Edit</button>
+                            <button onclick="showToast('User suspended')" class="text-red-600 text-sm hover:underline">Suspend</button>
+                        </td>
+                    </tr>
+                `)
+            ).join('')}
+        `;
+    }
+
+    function updateUI() {
+        document.getElementById('user-name').textContent = currentUser.name;
+        document.getElementById('user-role-badge').textContent = currentUser.role === 'admin' ? 'Admin' : 'Member';
+        document.getElementById('current-workspace').textContent = currentWorkspace.name;
+        
+        document.getElementById('settings-fullname').value = currentUser.fullName;
         document.getElementById('settings-email').value = currentUser.email;
-        document.getElementById('settings-username').value = currentUser.username || 'user';
-        document.getElementById('workspace-name').value = currentWorkspace;
-        document.getElementById('workspace-subdomain').value = currentWorkspaceId;
+        document.getElementById('settings-username').value = currentUser.username;
+        document.getElementById('workspace-name').value = currentWorkspace.name;
+        document.getElementById('workspace-url').value = currentWorkspaceId;
         
-        // Hide admin panel for members
+        // Hide admin for non-admins
         if (currentUser.role !== 'admin') {
             document.getElementById('admin-sidebar-link').classList.add('hidden');
-            if (!document.getElementById('admin-page').classList.contains('hidden')) {
-                showPage('dashboard');
-            }
         } else {
             document.getElementById('admin-sidebar-link').classList.remove('hidden');
         }
+    }
+
+    function switchWorkspace(name, id) {
+        currentWorkspaceId = id;
+        currentWorkspace = WORKSPACES[id];
+        document.getElementById('current-workspace').textContent = name;
+        document.getElementById('workspace-dropdown').classList.add('hidden');
         
-        refreshDashboard();
+        // Refresh current page
+        const currentPage = document.querySelector('.page:not(.hidden)').id.replace('-page', '');
+        loadPageData(currentPage);
+        
+        showToast(`Switched to ${name}`);
     }
 
-    // Refresh dashboard data
-    function refreshDashboard() {
-        const workspace = WORKSPACES[currentWorkspaceId];
-        if (workspace) {
-            document.getElementById('member-count').textContent = workspace.members.length;
-            
-            // Update team members list
-            const membersList = document.getElementById('team-members-list');
-            membersList.innerHTML = '';
-            
-            workspace.members.forEach(member => {
-                const memberEl = document.createElement('div');
-                memberEl.className = 'flex items-center justify-between';
-                memberEl.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span class="text-blue-600 font-medium">${member.initials}</span>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">${member.name}</p>
-                            <p class="text-xs text-gray-500">${member.email}</p>
-                        </div>
-                    </div>
-                    <span class="px-2 py-1 ${member.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'} text-xs font-medium rounded-full">
-                        ${member.role}
-                    </span>
-                `;
-                membersList.appendChild(memberEl);
-            });
-        }
-    }
-
-    // Refresh admin panel
-    function refreshAdminPanel() {
-        const workspace = WORKSPACES[currentWorkspaceId];
-        if (workspace) {
-            const tbody = document.getElementById('admin-team-members');
-            tbody.innerHTML = '';
-            
-            workspace.members.forEach(member => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="flex items-center">
-                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <span class="text-blue-600 font-medium">${member.initials}</span>
-                            </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">${member.name}</div>
-                                <div class="text-sm text-gray-500">${member.email}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <select class="text-sm border-gray-300 rounded-md" onchange="showToast('Role updated (demo)')">
-                            <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
-                            <option value="member" ${member.role === 'member' ? 'selected' : ''}>Member</option>
-                        </select>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 ${member.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'} text-xs font-medium rounded-full">
-                            ${member.status}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <button onclick="showToast('Delete user (demo)')" class="text-red-600 hover:text-red-900">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-    }
-
-    // Refresh settings
-    function refreshSettings() {
-        document.getElementById('settings-fullname').value = currentUser.fullName || currentUser.name;
-        document.getElementById('settings-email').value = currentUser.email;
-        document.getElementById('settings-username').value = currentUser.username || 'user';
-        document.getElementById('workspace-name').value = currentWorkspace;
-        document.getElementById('workspace-subdomain').value = currentWorkspaceId;
-    }
-
-    // Settings tabs
     function showSettingsTab(tab) {
-        document.getElementById('settings-profile').classList.add('hidden');
-        document.getElementById('settings-workspace').classList.add('hidden');
-        document.getElementById('settings-security').classList.add('hidden');
+        document.querySelectorAll('[id^="settings-"]').forEach(el => {
+            if (el.id !== 'settings-' + tab) {
+                el.classList.add('hidden');
+            }
+        });
+        document.getElementById('settings-' + tab).classList.remove('hidden');
         
-        document.getElementById(`settings-${tab}`).classList.remove('hidden');
-        
-        // Update tab styling
         document.querySelectorAll('.settings-tab').forEach(t => {
-            t.classList.remove('border-blue-500', 'text-blue-600');
+            t.classList.remove('border-indigo-600', 'text-indigo-600');
             t.classList.add('border-transparent', 'text-gray-500');
         });
-        document.getElementById(`tab-${tab}`).classList.add('border-blue-500', 'text-blue-600');
+        event.currentTarget.classList.add('border-indigo-600', 'text-indigo-600');
     }
 
-    // Workspace switcher
     function toggleWorkspaceDropdown() {
         document.getElementById('workspace-dropdown').classList.toggle('hidden');
     }
 
-    function switchWorkspace(workspaceName, workspaceId) {
-        currentWorkspace = workspaceName;
-        currentWorkspaceId = workspaceId;
-        document.getElementById('current-workspace').textContent = currentWorkspace;
-        document.getElementById('workspace-dropdown').classList.add('hidden');
-        document.getElementById('workspace-name').value = currentWorkspace;
-        document.getElementById('workspace-subdomain').value = workspaceId;
-        
-        refreshDashboard();
-        refreshAdminPanel();
-        showToast(`Switched to ${currentWorkspace}`);
-    }
-
-    // Toast notification
-    function showToast(message, type = 'success') {
+    function showToast(message) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
-        toast.classList.remove('translate-x-full');
-        
-        if (type === 'error') {
-            toast.classList.remove('bg-green-600');
-            toast.classList.add('bg-red-600');
-        } else {
-            toast.classList.remove('bg-red-600');
-            toast.classList.add('bg-green-600');
-        }
+        toast.classList.remove('translate-y-full');
         
         setTimeout(() => {
-            toast.classList.add('translate-x-full');
-        }, 3000);
+            toast.classList.add('translate-y-full');
+        }, 2000);
     }
 
     // Click outside to close dropdown
-    document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('workspace-dropdown');
-        const button = event.target.closest('button');
-        if (!button || !button.querySelector('#current-workspace')) {
-            dropdown.classList.add('hidden');
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#workspace-switcher')) {
+            document.getElementById('workspace-dropdown').classList.add('hidden');
         }
     });
 </script>
-
-<style>
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-    
-    /* Animations */
-    .sidebar-item {
-        transition: all 0.2s ease;
-    }
-    
-    .sidebar-item:hover {
-        background-color: #f3f4f6;
-    }
-    
-    .sidebar-item.active {
-        background-color: #eff6ff;
-        color: #2563eb;
-    }
-    
-    /* Loading states */
-    .loading {
-        position: relative;
-        pointer-events: none;
-        opacity: 0.7;
-    }
-    
-    .loading::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 20px;
-        height: 20px;
-        margin: -10px 0 0 -10px;
-        border: 2px solid #fff;
-        border-top-color: transparent;
-        border-radius: 50%;
-        animation: spinner 0.6s linear infinite;
-    }
-    
-    @keyframes spinner {
-        to { transform: rotate(360deg); }
-    }
-    
-    /* Form focus styles */
-    input:focus {
-        outline: none;
-        ring: 2px solid #3b82f6;
-    }
-    
-    /* Card hover effects */
-    .cred-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .cred-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-</style>
 </body>
 </html>
