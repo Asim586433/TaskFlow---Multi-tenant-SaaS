@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskFlow - Multi-tenant SaaS</title>
+    <title>TaskFlow - Multi-tenant SaaS Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -11,17 +11,86 @@
         .transition-all { transition: all 0.3s ease; }
         .sidebar { transition: transform 0.3s ease; }
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } }
+        
+        /* Demo banner */
+        .demo-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Credential cards hover effect */
+        .cred-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .cred-card:hover {
+            transform: translateY(-2px);
+            border-color: #667eea;
+            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.3);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
 
+<!-- Demo Banner -->
+<div class="demo-banner text-white py-2 px-4 text-center text-sm font-medium">
+    🚀 DEMO MODE - Use any of the credentials below to login
+</div>
+
+<!-- Demo Credentials Quick Access -->
+<div class="bg-white border-b shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3">
+        <p class="text-xs text-gray-500 mb-2">⚡ Quick Login - Click any account to auto-fill:</p>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="fillDemoLogin('admin@demo.com', 'password123', 'demo')" 
+                class="cred-card bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-purple-100">
+                👑 Admin (demo)
+            </button>
+            <button onclick="fillDemoLogin('member@demo.com', 'password123', 'demo')" 
+                class="cred-card bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-100">
+                👤 Member (demo)
+            </button>
+            <button onclick="fillDemoLogin('admin@acme.com', 'password123', 'acme')" 
+                class="cred-card bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-100">
+                🏢 Acme Admin
+            </button>
+            <button onclick="fillDemoLogin('john@acme.com', 'password123', 'acme')" 
+                class="cred-card bg-yellow-50 text-yellow-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-yellow-100">
+                ⭐ Acme Member
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- App Container -->
 <div id="app" class="min-h-screen">
     <!-- Auth Pages -->
-    <div id="auth-pages" class="hidden">
+    <div id="auth-pages">
         <!-- Login Page -->
         <div id="login-page" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
             <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+                <!-- Demo Credentials Card -->
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h3 class="text-sm font-semibold text-blue-800 mb-2">📋 Demo Credentials</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-blue-700">Admin (demo):</span>
+                            <code class="bg-white px-2 py-1 rounded">admin@demo.com / password123</code>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-blue-700">Member (demo):</span>
+                            <code class="bg-white px-2 py-1 rounded">member@demo.com / password123</code>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-blue-700">Acme Admin:</span>
+                            <code class="bg-white px-2 py-1 rounded">admin@acme.com / password123</code>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-blue-700">Acme Member:</span>
+                            <code class="bg-white px-2 py-1 rounded">john@acme.com / password123</code>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="text-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-900">TaskFlow</h1>
                     <p class="text-gray-600 mt-2">Sign in to your workspace</p>
@@ -30,34 +99,39 @@
                 <form id="login-form" class="space-y-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" id="login-email" required
+                        <input type="email" id="login-email" value="admin@demo.com" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="you@example.com">
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <input type="password" id="login-password" required
+                        <input type="password" id="login-password" value="password123" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="••••••••">
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Workspace (optional)</label>
-                        <input type="text" id="login-workspace"
+                        <input type="text" id="login-workspace" value="demo"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="your-workspace">
+                        <p class="text-xs text-gray-500 mt-1">Try: demo, acme</p>
                     </div>
                     
                     <button type="submit" 
                         class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Sign In
+                        Sign In (Demo)
                     </button>
                 </form>
                 
                 <p class="text-center mt-6 text-gray-600">
                     Don't have an account? 
-                    <button onclick="showRegister()" class="text-blue-600 font-semibold hover:underline">Sign up</button>
+                    <button onclick="showRegister()" class="text-blue-600 font-semibold hover:underline">Sign up (Demo)</button>
+                </p>
+                
+                <p class="text-center mt-4 text-xs text-gray-400">
+                    🔐 Demo: Any credentials work! Click the quick login buttons above
                 </p>
             </div>
         </div>
@@ -73,42 +147,42 @@
                 <form id="register-form" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                        <input type="text" id="register-fullname"
+                        <input type="text" id="register-fullname" value="Demo User"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="John Doe">
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" id="register-email" required
+                        <input type="email" id="register-email" value="demo@example.com" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="you@example.com">
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                        <input type="text" id="register-username" required
+                        <input type="text" id="register-username" value="demouser" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="johndoe">
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <input type="password" id="register-password" required
+                        <input type="password" id="register-password" value="password123" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="••••••••">
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                        <input type="password" id="register-confirm" required
+                        <input type="password" id="register-confirm" value="password123" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="••••••••">
                     </div>
                     
                     <button type="submit" 
                         class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Create Account
+                        Create Account (Demo)
                     </button>
                 </form>
                 
@@ -140,8 +214,8 @@
                             
                             <div id="workspace-dropdown" class="hidden absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                                 <div class="py-1">
-                                    <button onclick="switchWorkspace('demo')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Demo Workspace</button>
-                                    <button onclick="switchWorkspace('acme')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Acme Inc</button>
+                                    <button onclick="switchWorkspace('Demo Workspace', 'demo')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Demo Workspace</button>
+                                    <button onclick="switchWorkspace('Acme Inc', 'acme')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Acme Inc</button>
                                 </div>
                             </div>
                         </div>
@@ -149,6 +223,7 @@
                     
                     <div class="flex items-center space-x-4">
                         <span class="text-sm text-gray-600" id="user-name">Admin User</span>
+                        <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full" id="user-role-badge">Admin</span>
                         <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linecap="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -185,7 +260,7 @@
                         <span>Billing</span>
                     </button>
                     
-                    <button onclick="showPage('admin')" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
+                    <button onclick="showPage('admin')" id="admin-sidebar-link" class="sidebar-item w-full flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linecap="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
@@ -198,7 +273,13 @@
             <main class="flex-1 p-8">
                 <!-- Dashboard Page -->
                 <div id="dashboard-page" class="page">
-                    <h1 class="text-2xl font-bold text-gray-900 mb-8">Dashboard</h1>
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">Logged in as:</span>
+                            <span class="text-sm font-medium text-gray-900" id="dashboard-user-info">Admin (demo)</span>
+                        </div>
+                    </div>
                     
                     <!-- Stats -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -250,44 +331,7 @@
                         <div class="bg-white rounded-lg shadow p-6">
                             <h2 class="text-lg font-semibold text-gray-900 mb-4">Team Members</h2>
                             <div class="space-y-4" id="team-members-list">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                            <span class="text-blue-600 font-medium">AU</span>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900">Admin User</p>
-                                            <p class="text-xs text-gray-500">admin@demo.com</p>
-                                        </div>
-                                    </div>
-                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">Admin</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                                            <span class="text-green-600 font-medium">MU</span>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900">Member User</p>
-                                            <p class="text-xs text-gray-500">member@demo.com</p>
-                                        </div>
-                                    </div>
-                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">Member</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                                            <span class="text-yellow-600 font-medium">JD</span>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900">John Doe</p>
-                                            <p class="text-xs text-gray-500">john@demo.com</p>
-                                        </div>
-                                    </div>
-                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">Member</span>
-                                </div>
+                                <!-- Dynamic team members will be populated by JS -->
                             </div>
                         </div>
                         
@@ -340,20 +384,20 @@
                             <form class="space-y-6 max-w-2xl">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                                    <input type="text" value="Admin User" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="settings-fullname" value="Admin User" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                    <input type="email" value="admin@demo.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="email" id="settings-email" value="admin@demo.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                                    <input type="text" value="admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="settings-username" value="admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 
-                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Save Changes</button>
+                                <button type="button" onclick="showToast('Settings saved (demo)')" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Save Changes</button>
                             </form>
                         </div>
                         
@@ -362,18 +406,18 @@
                             <form class="space-y-6 max-w-2xl">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Workspace Name</label>
-                                    <input type="text" value="Demo Workspace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="workspace-name" value="Demo Workspace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Subdomain</label>
                                     <div class="flex">
-                                        <input type="text" value="demo" disabled class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-l-lg">
+                                        <input type="text" id="workspace-subdomain" value="demo" disabled class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-l-lg">
                                         <span class="inline-flex items-center px-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-500">.taskflow.app</span>
                                     </div>
                                 </div>
                                 
-                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Update Workspace</button>
+                                <button type="button" onclick="showToast('Workspace updated (demo)')" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Update Workspace</button>
                             </form>
                         </div>
                         
@@ -382,7 +426,7 @@
                             <form class="space-y-6 max-w-2xl">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-                                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="password" value="password123" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 
                                 <div>
@@ -395,7 +439,7 @@
                                     <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 
-                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Update Password</button>
+                                <button type="button" onclick="showToast('Password updated (demo)')" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Update Password</button>
                             </form>
                         </div>
                     </div>
@@ -427,7 +471,7 @@
                                 </div>
                                 
                                 <div class="mt-6">
-                                    <button class="text-red-600 hover:text-red-700 text-sm font-medium">Cancel subscription</button>
+                                    <button onclick="showToast('Subscription canceled (demo)')" class="text-red-600 hover:text-red-700 text-sm font-medium">Cancel subscription</button>
                                 </div>
                             </div>
                             
@@ -445,7 +489,7 @@
                                             <p class="text-xs text-gray-500">Expires 12/25</p>
                                         </div>
                                     </div>
-                                    <button class="text-blue-600 text-sm font-medium hover:text-blue-700">Update</button>
+                                    <button onclick="showToast('Payment method updated (demo)')" class="text-blue-600 text-sm font-medium hover:text-blue-700">Update</button>
                                 </div>
                             </div>
                             
@@ -461,7 +505,7 @@
                                         </div>
                                         <div class="flex items-center space-x-4">
                                             <span class="text-sm font-medium">$29.00</span>
-                                            <button class="text-blue-600 text-sm hover:underline">Download</button>
+                                            <button onclick="showToast('Downloading invoice (demo)')" class="text-blue-600 text-sm hover:underline">Download</button>
                                         </div>
                                     </div>
                                     
@@ -472,7 +516,7 @@
                                         </div>
                                         <div class="flex items-center space-x-4">
                                             <span class="text-sm font-medium">$29.00</span>
-                                            <button class="text-blue-600 text-sm hover:underline">Download</button>
+                                            <button onclick="showToast('Downloading invoice (demo)')" class="text-blue-600 text-sm hover:underline">Download</button>
                                         </div>
                                     </div>
                                     
@@ -483,7 +527,7 @@
                                         </div>
                                         <div class="flex items-center space-x-4">
                                             <span class="text-sm font-medium">$29.00</span>
-                                            <button class="text-blue-600 text-sm hover:underline">Download</button>
+                                            <button onclick="showToast('Downloading invoice (demo)')" class="text-blue-600 text-sm hover:underline">Download</button>
                                         </div>
                                     </div>
                                 </div>
@@ -555,7 +599,7 @@
                         <div class="p-6">
                             <div class="flex justify-between items-center mb-6">
                                 <h2 class="text-lg font-semibold text-gray-900">Team Members</h2>
-                                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                <button onclick="showToast('Invite member (demo)')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
                                     Invite Member
                                 </button>
                             </div>
@@ -570,96 +614,8 @@
                                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center">
-                                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                                        <span class="text-blue-600 font-medium">AU</span>
-                                                    </div>
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-gray-900">Admin User</div>
-                                                        <div class="text-sm text-gray-500">admin@demo.com</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <select class="text-sm border-gray-300 rounded-md">
-                                                    <option value="admin" selected>Admin</option>
-                                                    <option value="member">Member</option>
-                                                </select>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Active</span>
-                                            </td>
-                                            <td class="px-6 py-4 text-right">
-                                                <button class="text-red-600 hover:text-red-900">
-                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                    </svg>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        
-                                        <tr>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center">
-                                                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                                                        <span class="text-green-600 font-medium">MU</span>
-                                                    </div>
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-gray-900">Member User</div>
-                                                        <div class="text-sm text-gray-500">member@demo.com</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <select class="text-sm border-gray-300 rounded-md">
-                                                    <option value="admin">Admin</option>
-                                                    <option value="member" selected>Member</option>
-                                                </select>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Active</span>
-                                            </td>
-                                            <td class="px-6 py-4 text-right">
-                                                <button class="text-red-600 hover:text-red-900">
-                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                    </svg>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        
-                                        <tr>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center">
-                                                    <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                                                        <span class="text-yellow-600 font-medium">JD</span>
-                                                    </div>
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-gray-900">John Doe</div>
-                                                        <div class="text-sm text-gray-500">john@demo.com</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <select class="text-sm border-gray-300 rounded-md">
-                                                    <option value="admin">Admin</option>
-                                                    <option value="member" selected>Member</option>
-                                                </select>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">Pending</span>
-                                            </td>
-                                            <td class="px-6 py-4 text-right">
-                                                <button class="text-red-600 hover:text-red-900">
-                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                    </svg>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                    <tbody class="divide-y divide-gray-200" id="admin-team-members">
+                                        <!-- Dynamic content -->
                                     </tbody>
                                 </table>
                             </div>
@@ -692,12 +648,6 @@
                                         </svg>
                                         Manage billing
                                     </li>
-                                    <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Access all projects
-                                    </li>
                                 </ul>
                             </div>
                             
@@ -722,12 +672,6 @@
                                         </svg>
                                         Comment on tasks
                                     </li>
-                                    <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linecap="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Update profile
-                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -739,12 +683,67 @@
 </div>
 
 <!-- Toast Notification -->
-<div id="toast" class="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full"></div>
+<div id="toast" class="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full z-50"></div>
 
 <script>
+    // Demo user database
+    const DEMO_USERS = {
+        'admin@demo.com': {
+            name: 'Admin User',
+            role: 'admin',
+            workspace: 'demo',
+            fullName: 'Admin User',
+            username: 'admin'
+        },
+        'member@demo.com': {
+            name: 'Member User',
+            role: 'member',
+            workspace: 'demo',
+            fullName: 'Member User',
+            username: 'member'
+        },
+        'admin@acme.com': {
+            name: 'Acme Admin',
+            role: 'admin',
+            workspace: 'acme',
+            fullName: 'Acme Admin',
+            username: 'acme_admin'
+        },
+        'john@acme.com': {
+            name: 'John Doe',
+            role: 'member',
+            workspace: 'acme',
+            fullName: 'John Doe',
+            username: 'john_doe'
+        }
+    };
+
+    // Workspace data
+    const WORKSPACES = {
+        'demo': {
+            name: 'Demo Workspace',
+            members: [
+                { name: 'Admin User', email: 'admin@demo.com', role: 'admin', status: 'Active', initials: 'AU' },
+                { name: 'Member User', email: 'member@demo.com', role: 'member', status: 'Active', initials: 'MU' },
+                { name: 'Sarah Wilson', email: 'sarah@demo.com', role: 'member', status: 'Active', initials: 'SW' },
+                { name: 'Mike Brown', email: 'mike@demo.com', role: 'member', status: 'Pending', initials: 'MB' }
+            ]
+        },
+        'acme': {
+            name: 'Acme Inc',
+            members: [
+                { name: 'Acme Admin', email: 'admin@acme.com', role: 'admin', status: 'Active', initials: 'AA' },
+                { name: 'John Doe', email: 'john@acme.com', role: 'member', status: 'Active', initials: 'JD' },
+                { name: 'Jane Smith', email: 'jane@acme.com', role: 'member', status: 'Active', initials: 'JS' },
+                { name: 'Bob Johnson', email: 'bob@acme.com', role: 'member', status: 'Inactive', initials: 'BJ' }
+            ]
+        }
+    };
+
     // State management
     let currentUser = null;
     let currentWorkspace = 'Demo Workspace';
+    let currentWorkspaceId = 'demo';
     let isAuthenticated = false;
 
     // Initialize app
@@ -756,23 +755,54 @@
         document.getElementById('register-form').addEventListener('submit', handleRegister);
     };
 
+    // Fill demo login credentials
+    function fillDemoLogin(email, password, workspace) {
+        document.getElementById('login-email').value = email;
+        document.getElementById('login-password').value = password;
+        document.getElementById('login-workspace').value = workspace;
+        showToast(`✅ Filled: ${email}`);
+    }
+
     // Authentication functions
     function handleLogin(e) {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
+        const workspace = document.getElementById('login-workspace').value;
         
-        // Simulate login
+        // Demo authentication - accept any credentials but use demo users for different roles
         if (email && password) {
-            currentUser = {
-                name: 'Admin User',
-                email: email,
-                role: 'admin'
-            };
+            // Check if it's a known demo user
+            const demoUser = DEMO_USERS[email];
+            
+            if (demoUser) {
+                currentUser = {
+                    name: demoUser.name,
+                    email: email,
+                    role: demoUser.role,
+                    fullName: demoUser.fullName,
+                    username: demoUser.username
+                };
+                currentWorkspaceId = demoUser.workspace;
+                currentWorkspace = WORKSPACES[currentWorkspaceId].name;
+            } else {
+                // Default to admin for any other credentials
+                currentUser = {
+                    name: 'Demo User',
+                    email: email,
+                    role: 'admin',
+                    fullName: 'Demo User',
+                    username: 'demouser'
+                };
+                currentWorkspaceId = workspace || 'demo';
+                currentWorkspace = WORKSPACES[currentWorkspaceId]?.name || 'Demo Workspace';
+            }
+            
             isAuthenticated = true;
-            showToast('Login successful!');
+            showToast(`✅ Logged in as ${currentUser.role} (Demo Mode)`);
             showApp();
             showPage('dashboard');
+            updateUIForUser();
         } else {
             showToast('Please fill in all fields', 'error');
         }
@@ -792,7 +822,7 @@
         
         // Simulate registration
         if (fullname && email && password) {
-            showToast('Registration successful! Please login.');
+            showToast('✅ Registration successful! Please login.');
             showLogin();
         } else {
             showToast('Please fill in all fields', 'error');
@@ -802,7 +832,7 @@
     function logout() {
         isAuthenticated = false;
         currentUser = null;
-        showToast('Logged out successfully');
+        showToast('👋 Logged out successfully');
         showLogin();
     }
 
@@ -824,7 +854,6 @@
     function showApp() {
         document.getElementById('auth-pages').classList.add('hidden');
         document.getElementById('app-pages').classList.remove('hidden');
-        document.getElementById('user-name').textContent = currentUser?.name || 'User';
     }
 
     function showPage(page) {
@@ -839,6 +868,126 @@
             item.classList.remove('bg-blue-50', 'text-blue-600');
         });
         event.currentTarget.classList.add('bg-blue-50', 'text-blue-600');
+        
+        // Refresh page data
+        if (page === 'dashboard') refreshDashboard();
+        if (page === 'admin') refreshAdminPanel();
+        if (page === 'settings') refreshSettings();
+    }
+
+    // Update UI based on user role
+    function updateUIForUser() {
+        document.getElementById('user-name').textContent = currentUser.name;
+        document.getElementById('user-role-badge').textContent = 
+            currentUser.role === 'admin' ? 'Admin' : 'Member';
+        document.getElementById('current-workspace').textContent = currentWorkspace;
+        document.getElementById('dashboard-user-info').textContent = 
+            `${currentUser.name} (${currentUser.role})`;
+        
+        // Update settings fields
+        document.getElementById('settings-fullname').value = currentUser.fullName || currentUser.name;
+        document.getElementById('settings-email').value = currentUser.email;
+        document.getElementById('settings-username').value = currentUser.username || 'user';
+        document.getElementById('workspace-name').value = currentWorkspace;
+        document.getElementById('workspace-subdomain').value = currentWorkspaceId;
+        
+        // Hide admin panel for members
+        if (currentUser.role !== 'admin') {
+            document.getElementById('admin-sidebar-link').classList.add('hidden');
+            if (!document.getElementById('admin-page').classList.contains('hidden')) {
+                showPage('dashboard');
+            }
+        } else {
+            document.getElementById('admin-sidebar-link').classList.remove('hidden');
+        }
+        
+        refreshDashboard();
+    }
+
+    // Refresh dashboard data
+    function refreshDashboard() {
+        const workspace = WORKSPACES[currentWorkspaceId];
+        if (workspace) {
+            document.getElementById('member-count').textContent = workspace.members.length;
+            
+            // Update team members list
+            const membersList = document.getElementById('team-members-list');
+            membersList.innerHTML = '';
+            
+            workspace.members.forEach(member => {
+                const memberEl = document.createElement('div');
+                memberEl.className = 'flex items-center justify-between';
+                memberEl.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span class="text-blue-600 font-medium">${member.initials}</span>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">${member.name}</p>
+                            <p class="text-xs text-gray-500">${member.email}</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-1 ${member.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'} text-xs font-medium rounded-full">
+                        ${member.role}
+                    </span>
+                `;
+                membersList.appendChild(memberEl);
+            });
+        }
+    }
+
+    // Refresh admin panel
+    function refreshAdminPanel() {
+        const workspace = WORKSPACES[currentWorkspaceId];
+        if (workspace) {
+            const tbody = document.getElementById('admin-team-members');
+            tbody.innerHTML = '';
+            
+            workspace.members.forEach(member => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span class="text-blue-600 font-medium">${member.initials}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${member.name}</div>
+                                <div class="text-sm text-gray-500">${member.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <select class="text-sm border-gray-300 rounded-md" onchange="showToast('Role updated (demo)')">
+                            <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
+                            <option value="member" ${member.role === 'member' ? 'selected' : ''}>Member</option>
+                        </select>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 ${member.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'} text-xs font-medium rounded-full">
+                            ${member.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="showToast('Delete user (demo)')" class="text-red-600 hover:text-red-900">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    }
+
+    // Refresh settings
+    function refreshSettings() {
+        document.getElementById('settings-fullname').value = currentUser.fullName || currentUser.name;
+        document.getElementById('settings-email').value = currentUser.email;
+        document.getElementById('settings-username').value = currentUser.username || 'user';
+        document.getElementById('workspace-name').value = currentWorkspace;
+        document.getElementById('workspace-subdomain').value = currentWorkspaceId;
     }
 
     // Settings tabs
@@ -862,14 +1011,16 @@
         document.getElementById('workspace-dropdown').classList.toggle('hidden');
     }
 
-    function switchWorkspace(workspace) {
-        const names = {
-            'demo': 'Demo Workspace',
-            'acme': 'Acme Inc'
-        };
-        currentWorkspace = names[workspace];
+    function switchWorkspace(workspaceName, workspaceId) {
+        currentWorkspace = workspaceName;
+        currentWorkspaceId = workspaceId;
         document.getElementById('current-workspace').textContent = currentWorkspace;
         document.getElementById('workspace-dropdown').classList.add('hidden');
+        document.getElementById('workspace-name').value = currentWorkspace;
+        document.getElementById('workspace-subdomain').value = workspaceId;
+        
+        refreshDashboard();
+        refreshAdminPanel();
         showToast(`Switched to ${currentWorkspace}`);
     }
 
@@ -900,13 +1051,6 @@
             dropdown.classList.add('hidden');
         }
     });
-
-    // Demo data
-    const demoData = {
-        members: 8,
-        projects: 12,
-        tasks: 156
-    };
 </script>
 
 <style>
@@ -975,11 +1119,11 @@
     }
     
     /* Card hover effects */
-    .card-hover {
+    .cred-card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
-    .card-hover:hover {
+    .cred-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
     }
